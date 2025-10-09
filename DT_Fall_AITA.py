@@ -9,7 +9,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.pipeline import Pipeline
 
-df = pd.read_csv('Cleaned_Data_Max.csv')
+df = pd.read_csv('Cleaned_Data_Fall.csv')
 politics_map = {
     'Strongly liberal': 'Liberal',
     'Mildly liberal': 'Liberal',
@@ -52,7 +52,14 @@ df['parents politics simplified'] = df['parents politics_norm'].apply(simplify_p
 
 
 y = df['self politics simplified']
-feature_cols = ['doctor gf', 'not walking daughter down aisle', 'split rent with gf', 'paying step daughters private school', 'lost cat', 'poorly behaved niece', 'not helping sister with kids on flight', 'misusing child support', 'ensuring fair child support amount', 'paying for kids college', 'mother-in-laws boyfriend', 'donating to LGBTQ org', 'not drinking wife pregnant', 'bridesmaid sister hair']
+feature_cols = ['gf doctor',
+       'not walking daughter down aisle', 'split rent 50 50',
+       'paying daughters private school fees', 'lost cat',
+       'poorly behaved niece', 'not helping sister on flight',
+       'misusing child support', 'making sure fair child support',
+       'paying college fees', 'mother-in-law boyfriend',
+       'donating to LGBTQ org.', 'cannot drink wife pregnant',
+       'bridesmaid sisters hair']
 X = df.loc[:,feature_cols]
 
 #preprocess 
@@ -69,11 +76,11 @@ pre = ColumnTransformer(
 
 #split between training and testing data
 labels_order = ["Liberal", 'Conservative', 'Neutral', 'Unaffiliated']
-X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.25, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.30, random_state=42, stratify=y)
 
 
 #gini 
-clf = DecisionTreeClassifier(criterion="gini",max_depth=3, random_state=42)
+clf = DecisionTreeClassifier(criterion="gini",max_depth=4, random_state=42)
 
 pipe = Pipeline([("pre", pre), ("dt", clf)])
 
@@ -89,7 +96,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels_order)
 disp.plot(values_format='d')
 plt.title('Confusion Matrix self politics (simplified)')
 plt.tight_layout
-plt.savefig('cmDataMax_AITA.png')
+plt.savefig('cmDataFall_AITA.png')
 
 # --- Feature importances (what drove the splits) ---
 ohe = pipe.named_steps["pre"].named_transformers_["cat"]
@@ -110,4 +117,12 @@ plot_tree(
 
 plt.title('Decision Tree gini self politics simplified')
 plt.tight_layout()
-plt.savefig('DTMaxAITA.png', dpi=200,bbox_inches='tight')
+plt.savefig('DTFall_AITA.png', dpi=200,bbox_inches='tight')
+
+
+#ITS REALLY SHIT
+'''0.48 accuracy
+
+only good for predicting libs, might be because it has the largest sample size
+conservatives and neutrals are terrible
+'''

@@ -73,7 +73,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.25, random_
 
 
 #gini 
-clf = DecisionTreeClassifier(criterion="gini",max_depth=4, random_state=42)
+clf = DecisionTreeClassifier(criterion="gini",max_depth=3, random_state=42)
 
 pipe = Pipeline([("pre", pre), ("dt", clf)])
 
