@@ -91,9 +91,9 @@ y_pred = pipe.predict(X_test)
 print("Accuracy:", f"{accuracy_score(y_test, y_pred)}")
 print(classification_report(y_test,y_pred, labels=labels_order, zero_division=0))
 
-cm = confusion_matrix(y_test, y_pred, labels=labels_order)
+cm = confusion_matrix(y_test, y_pred, labels=labels_order, normalize='true')
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels_order)
-disp.plot(values_format='d')
+disp.plot(cmap='Blues',values_format='.2f')
 plt.title('Confusion Matrix self politics (simplified)')
 plt.tight_layout
 plt.savefig('cmDataFall_removed_AITA.png')
