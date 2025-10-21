@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 from sklearn.compose import ColumnTransformer
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
 
 df = pd.read_csv('Clean_Data_Max_removeUnknown.csv')
 politics_map = {
@@ -111,3 +112,38 @@ plot_tree(
 plt.title('Decision Tree gini self politics simplified')
 plt.tight_layout()
 plt.savefig('DTMaxAITA_removed.png', dpi=200,bbox_inches='tight')
+
+
+rf = RandomForestClassifier(
+    n_estimators = 200,
+    criterion='gini',
+    max_depth=3,
+    random_state=42
+)
+
+pipe_rf = Pipeline([("pre", pre), ("rf", rf)])
+pipe_rf.fit(X_train, y_train)
+y_pred = pipe_rf.predict(X_test)
+
+#evaluation
+print(f"Accuracy random forest: {accuracy_score(y_test, y_pred):.4f}")
+print("\nClassification report random forest:")
+labels_order = sorted(y.unique().tolist())
+print(classification_report(y_test, y_pred, labels=labels_order,zero_division=0))
+
+cm = confusion_matrix(y_test, y_pred, labels = labels_order)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels = labels_order)
+disp.plot(cmap='Blues', values_format='d')
+plt.title('Random Forest - self politics prediction')
+plt.tight_layout()
+plt.savefig('cmRF_Max_removed.png', dpi=200, bbox_inches='tight')
+plt.close()
+
+ohe = pipe_rf.named_steps["pre"].named_transformers_["cat"]
+ohe_names = ohe.get_feature_names_out(categorical_cols)
+feature_names = list(ohe_names) + numeric_cols
+
+importances = pipe_rf.named_steps["rf"].feature_importances_
+feat_imp = pd.Series(importances, index=feature_names).sort_values(ascending=False)
+print('\nTop 10 important features:')
+print(feat_imp.head(10))
